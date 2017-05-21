@@ -9,8 +9,8 @@ dic = open("C:/Users/danie/Desktop/CodeInstitute/Stream 2/pythonChallenges/boggl
 # Read file object into an ordered array for searching
 dicArray = []
 for line in dic:
-    str = line[:-1]
-    dicArray.append(str)
+    dicLine = line[:-1]
+    dicArray.append(dicLine)
 # Test search dicArray for the word 'test'
 if "test" in dicArray:
     print("Test if dictionary created passed")
@@ -52,22 +52,20 @@ wordCount = 0
 smallDicArray = []
 for i in letterSet:
     for word in dicArray:
-        if word[:1] == i: 
+        if word[:1] == i:
             smallDicArray.append(word)
             wordCount = wordCount + 1
 print("Test of reduced size dictioanry =", wordCount)
 
 # Search the reduced dictionary to see if it contains the
 # String str and return boolean
-str = "test"
-
-def wordSearch(str):
-   return str in dicArray
+wordToSearch = "test"
+def wordSearch(wordToSearch):
+    return wordToSearch in dicArray
 
 print("Test: If string test in smallDicSearch =", wordSearch(str))
 
 subString = "te"
-
 def checkSubStringInDictionary(subString, smallDicArray):
     charTotal = len(subString)
     for word in smallDicArray:
@@ -120,7 +118,7 @@ print("Test initial num neighbours to search for middle (should be 8) = ", maxSe
 
 # Get location of square tl (top left),tr,bl,br / ts (top side), rs, bs, ls / middle
 def location(row, col, boardSize):
-    if (row == 0 and col == 0): 
+    if (row == 0 and col == 0):
         return "tl"
     if (row == 0 and col == boardSize - 1):
         return "tr"
@@ -128,9 +126,9 @@ def location(row, col, boardSize):
         return "bl"
     if (row == boardSize - 1 and col == boardSize - 1):
         return "br"
-    if ((row == 0 and col > 0) and (row == 0 and col < boardSize - 1)): 
+    if ((row == 0 and col > 0) and (row == 0 and col < boardSize - 1)):
         return "ts"
-    if ((row > 0 and col == 0) and (row < boardSize - 1 and col == 0)): 
+    if ((row > 0 and col == 0) and (row < boardSize - 1 and col == 0)):
         return "ls"
     if ((row == boardSize - 1 and col > 0) and (row == boardSize - 1 and col < boardSize - 1)):
         return "bs"
@@ -182,7 +180,6 @@ def neighbourLetterFinder(r, c, board, loc):
             {square.format(r - 1, c): board[r - 1][c]},
         ]
     elif loc == "ts":
-        print ("Test of row, col, in neighbourLetterFinder = ", r, " ", c)
         neighbourSquares += [
             {square.format(r, c -1): board[r][c - 1]},
             {square.format(r + 1, c -1): board[r + 1][c - 1]},
@@ -214,7 +211,7 @@ def neighbourLetterFinder(r, c, board, loc):
             {square.format(r + 1, c + 1): board[r + 1][c + 1]},
             {square.format(r + 1, c): board[r + 1][c]},
         ]
-    else: 
+    else:
         neighbourSquares += [
             {square.format(r -1, c): board[r -1][c]},
             {square.format(r -1, c + 1): board[r - 1][c + 1]},
@@ -232,15 +229,17 @@ def neighbourLetterFinder(r, c, board, loc):
 # candidateString passed in to nextLetterArrayBuilder with visitedSquares
 # returns list of more candidates
 # Then candidate checked if a whole valid word and added to the finalSolution list
+
+# TRack visited squares using dictionary = string : [square1, square 2, square3]
 visitedSquares = []
+
 candidateString = ""
 finalSolutions = []
 def nextLetterArrayBuilder(r, c, board, boardSize, visitedSquares, candidateString):
+    currentSquare = [r, c]
     if visitedSquares == []:
         candidateString = board[r][c]
-        rowCol = "{0}, {1}"
-        rowCol.format(r, c)
-        visitedSquares.append(rowCol)
+        visitedSquares.append({candidateString: currentSquare})
     neighbourSquares = []
     solutionList = []
     squareList = []
@@ -249,16 +248,19 @@ def nextLetterArrayBuilder(r, c, board, boardSize, visitedSquares, candidateStri
     for letter in neighbourLetters:
         val = list(letter.values())
         square = list(letter.keys())
-        if not square in visitedSquares:
-            solutionString = candidateString +  val[0]
-            if checkSubStringInDictionary(solutionString, smallDicArray):
-                solutionList.append(solutionString)
-                visitedSquares.append(square)
+        for visited in visitedSquares:
+            candKey = list(visited.keys())
+            if candKey[0] == candidateString:
+                candSquareList = list(visited.values())
+                if not square in candSquareList:
+                    solutionString = candidateString +  val[0]
+                    if checkSubStringInDictionary(solutionString, smallDicArray):
+                        solutionList.append(solutionString)
+                        visitedSquares.append({solutionString: [candSquareList + square]})
     solutions = [solutionList, visitedSquares]
     return solutions
-        
 
-print("Test all solutions generated using r:0, c:0 = ", nextLetterArrayBuilder(0, 0, board, boardSize, visitedSquares, candidateString) )
+# print("Test all solutions generated using r:0, c:0 = ", nextLetterArrayBuilder(0, 0, board, boardSize, visitedSquares, candidateString) )
 print(board)
 
 # Build 3rd square solution to add third valid character to the solutionArray without
@@ -280,8 +282,7 @@ def boardSolver(board, boardSize):
                     solutions = nextLetterArrayBuilder(row, col, board, boardSize, visitedSquares, candidate)
                     candidateList = solutions[0]
                     finalSolutions = storeValidWords(candidateList, finalSolutions)
-                    visitedSquares += solutions[1]
-                visitedSquares = []
+                    visitedSquares = solutions[1]
     finalSolutions = wholeWordCheck(finalSolutions)
     return finalSolutions
 
