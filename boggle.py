@@ -13,7 +13,7 @@ for line in dic:
     dicArray.append(str)
 # Test search dicArray for the word 'test'
 if "test" in dicArray:
-    print("Test if dictionarray created passed")
+    print("Test if dictionary created passed")
 
 
 letter = random.choice(string.ascii_lowercase)
@@ -55,7 +55,6 @@ for i in letterSet:
         if word[:1] == i: 
             smallDicArray.append(word)
             wordCount = wordCount + 1
-print(smallDicArray)
 print("Test of reduced size dictioanry =", wordCount)
 
 # Search the reduced dictionary to see if it contains the
@@ -66,6 +65,18 @@ def wordSearch(str):
    return str in dicArray
 
 print("Test: If string test in smallDicSearch =", wordSearch(str))
+
+subString = "te"
+
+def checkSubStringInDictionary(subString, smallDicArray):
+    charTotal = len(subString)
+    for word in smallDicArray:
+        if word[0 : charTotal] == subString:
+            return True
+    return False 
+            
+
+print("Test: If subString te in smallDicArray =", checkSubStringInDictionary(subString, smallDicArray))
 
 # Build the string from the board - string is > 2 characters
 # Search string not to repeat a square previously appended to string
@@ -111,21 +122,21 @@ print("Test initial num neighbours to search for middle (should be 8) = ", maxSe
 def location(row, col, boardSize):
     if (row == 0 and col == 0): 
         return "tl"
-    if (row == 0 and col == boardSize):
+    if (row == 0 and col == boardSize - 1):
         return "tr"
-    if (row == boardSize and col == 0):
+    if (row == boardSize - 1 and col == 0):
         return "bl"
-    if (row == boardSize and col == boardSize):
+    if (row == boardSize - 1 and col == boardSize - 1):
         return "br"
-    if ((row == 0 and col > 0) and (row == 0 and col < boardSize)): 
+    if ((row == 0 and col > 0) and (row == 0 and col < boardSize - 1)): 
         return "ts"
-    if ((row > 0 and col == 0) and (row < boardSize and col == 0)): 
+    if ((row > 0 and col == 0) and (row < boardSize - 1 and col == 0)): 
         return "ls"
-    if ((row == boardSize and col > 0) and (row == boardSize and col < boardSize)):
+    if ((row == boardSize - 1 and col > 0) and (row == boardSize - 1 and col < boardSize - 1)):
         return "bs"
-    if ((row > 0 and col == boardSize) and (row < boardSize and col == boardSize)):
+    if ((row > 0 and col == boardSize - 1) and (row < boardSize - 1 and col == boardSize - 1)):
         return "rs"
-    if ((row > 0 and col > 0) and (row < boardSize and col < boardSize)):
+    if ((row > 0 and col > 0) and (row < boardSize - 1 and col < boardSize - 1)):
         return "middle"
 
 
@@ -143,28 +154,155 @@ def location(row, col, boardSize):
 
 #  Test by building one string first
 
-def subSearch(board, boardSize):
-    r = 0
-    c = 0
+def neighbourLetterFinder(r, c, board, loc):
     neighbourSquares = []
     square = "{0}, {1}"
-    for row in board:
-        for col in row:
-            # TODO - complete the if selction by location of squares
-            if location(r, c, boardSize) == "tl":
-                neighbourSquares += [
-                    {square.format(r -1, c): board[r -1][c]},
-                    {square.format(r -1, c + 1): board[r - 1][c + 1]},
-                    {square.format(r, c + 1): board[r][c + 1]},
-                    {square.format(r + 1, c + 1): board[r + 1][c + 1]},
-                    {square.format(r + 1, c): board[r+ 1][c]},
-                    {square.format(r + 1, c -1): board[r + 1][c - 1]},
-                    {square.format(r, c -1): board[r][c - 1]},
-                    {square.format(r - 1, c -1): board[r - 1][c - 1]},
-                ]
-            c = c + 1
-        r = r + 1
-        c = 0
-#     solution.append(str)
+    if loc == "tl":
+        neighbourSquares += [
+            {square.format(r, c + 1): board[r][c + 1]},
+            {square.format(r + 1, c + 1): board[r + 1][c + 1]},
+            {square.format(r + 1, c): board[r + 1][c]},
+        ]
+    elif loc == "tr":
+        neighbourSquares += [
+            {square.format(r, c -1): board[r][c - 1]},
+            {square.format(r + 1, c -1): board[r + 1][c - 1]},
+            {square.format(r + 1, c): board[r + 1][c]},
+        ]
+    elif loc == "br":
+        neighbourSquares += [
+            {square.format(r, c -1): board[r][c - 1]},
+            {square.format(r - 1, c -1): board[r - 1][c - 1]},
+            {square.format(r - 1, c): board[r - 1][c]},
+        ]
+    elif loc == "bl":
+        neighbourSquares += [
+            {square.format(r, c + 1): board[r][c + 1]},
+            {square.format(r - 1, c + 1): board[r - 1][c + 1]},
+            {square.format(r - 1, c): board[r - 1][c]},
+        ]
+    elif loc == "ts":
+        print ("Test of row, col, in neighbourLetterFinder = ", r, " ", c)
+        neighbourSquares += [
+            {square.format(r, c -1): board[r][c - 1]},
+            {square.format(r + 1, c -1): board[r + 1][c - 1]},
+            {square.format(r + 1, c): board[r + 1][c]},
+            {square.format(r + 1, c + 1): board[r + 1][c + 1]},
+            {square.format(r, c + 1): board[r][c + 1]},
+        ]
+    elif loc == "rs":
+        neighbourSquares += [
+            {square.format(r - 1, c): board[r - 1][c]},
+            {square.format(r - 1, c - 1): board[r - 1][c - 1]},
+            {square.format(r, c -1): board[r][c - 1]},
+            {square.format(r + 1, c -1): board[r + 1][c - 1]},
+            {square.format(r + 1, c): board[r + 1][c]},
+        ]
+    elif loc == "bs":
+        neighbourSquares += [
+            {square.format(r, c -1): board[r][c - 1]},
+            {square.format(r - 1, c -1): board[r - 1][c - 1]},
+            {square.format(r - 1, c): board[r - 1][c]},
+            {square.format(r - 1, c + 1): board[r - 1][c + 1]},
+            {square.format(r, c + 1): board[r][c + 1]},
+        ]
+    elif loc == "ls":
+        neighbourSquares += [
+            {square.format(r - 1, c): board[r - 1][c]},
+            {square.format(r - 1, c + 1): board[r - 1][c + 1]},
+            {square.format(r, c + 1): board[r][c + 1]},
+            {square.format(r + 1, c + 1): board[r + 1][c + 1]},
+            {square.format(r + 1, c): board[r + 1][c]},
+        ]
+    else: 
+        neighbourSquares += [
+            {square.format(r -1, c): board[r -1][c]},
+            {square.format(r -1, c + 1): board[r - 1][c + 1]},
+            {square.format(r, c + 1): board[r][c + 1]},
+            {square.format(r + 1, c + 1): board[r + 1][c + 1]},
+            {square.format(r + 1, c): board[r+ 1][c]},
+            {square.format(r + 1, c -1): board[r + 1][c - 1]},
+            {square.format(r, c -1): board[r][c - 1]},
+            {square.format(r - 1, c -1): board[r - 1][c - 1]},
+        ]
+    return neighbourSquares
 
-print("Test all solutions generated = ", subSearch(board) )
+
+# Build a list of possible solutions like a snake, starting with each letter on board
+# candidateString passed in to nextLetterArrayBuilder with visitedSquares
+# returns list of more candidates
+# Then candidate checked if a whole valid word and added to the finalSolution list
+visitedSquares = []
+candidateString = ""
+finalSolutions = []
+def nextLetterArrayBuilder(r, c, board, boardSize, visitedSquares, candidateString):
+    if visitedSquares == []:
+        candidateString = board[r][c]
+        rowCol = "{0}, {1}"
+        rowCol.format(r, c)
+        visitedSquares.append(rowCol)
+    neighbourSquares = []
+    solutionList = []
+    squareList = []
+    loc = location(r, c, boardSize)
+    neighbourLetters = neighbourLetterFinder(r, c, board, loc)
+    for letter in neighbourLetters:
+        val = list(letter.values())
+        square = list(letter.keys())
+        if not square in visitedSquares:
+            solutionString = candidateString +  val[0]
+            if checkSubStringInDictionary(solutionString, smallDicArray):
+                solutionList.append(solutionString)
+                visitedSquares.append(square)
+    solutions = [solutionList, visitedSquares]
+    return solutions
+        
+
+print("Test all solutions generated using r:0, c:0 = ", nextLetterArrayBuilder(0, 0, board, boardSize, visitedSquares, candidateString) )
+print(board)
+
+# Build 3rd square solution to add third valid character to the solutionArray without
+# doubling back on a previously seen square
+
+# First run pass in exact values for row and col ( r:0 , c:0) then get values from the returned array
+
+def boardSolver(board, boardSize):
+    finalSolutions = []
+    for row in range(boardSize):
+        for col in range(boardSize):
+            visitedSquares = []
+            candidateString = ""
+            solutions = nextLetterArrayBuilder(row, col, board, boardSize, visitedSquares, candidateString)
+            candidateList = solutions[0]
+            visitedSquares = solutions[1]
+            while len(candidateList) > 0:
+                for candidate in candidateList:
+                    solutions = nextLetterArrayBuilder(row, col, board, boardSize, visitedSquares, candidate)
+                    candidateList = solutions[0]
+                    finalSolutions = storeValidWords(candidateList, finalSolutions)
+                    visitedSquares += solutions[1]
+                visitedSquares = []
+    finalSolutions = wholeWordCheck(finalSolutions)
+    return finalSolutions
+
+
+# Add valid words to the finalSolutions array by taking in an array
+def storeValidWords (candidateList, finalSolutions):
+    for word in candidateList:
+        if checkSubStringInDictionary(word, smallDicArray):
+            finalSolutions.append(word)
+    return finalSolutions
+
+def wholeWordCheck(finalSolutions):
+    wholeWords = []
+    for word in finalSolutions:
+        charTotal = len(word)
+        for dicWord in smallDicArray:
+            if charTotal == len(dicWord):
+                if word == dicWord:
+                    wholeWords.append(dicWord)
+    wholeWords = set(wholeWords)
+    return wholeWords
+
+
+print("Test that finalSolutions is being built =", boardSolver(board, boardSize))
